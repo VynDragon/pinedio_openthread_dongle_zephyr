@@ -1,0 +1,13 @@
+/ {
+	leds {
+		status = "disabled";
+	};
+};
+
+&pwmleds {
+	status = "okay";
+};
+
+&uart0 {
+	current-speed = <115200>;
+};
