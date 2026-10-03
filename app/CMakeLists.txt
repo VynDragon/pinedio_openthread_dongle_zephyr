@@ -13,4 +13,5 @@ zephyr_link_libraries(
 -Wl,--wrap=otPlatRadioEnable
 -Wl,--wrap=otPlatRadioDisable
 -Wl,--wrap=otPlatRadioTxDone
--Wl,--wrap=otPlatRadioReceiveDone)
+-Wl,--wrap=otPlatRadioReceiveDone
+-Wl,--wrap=otPlatRadioGetIeeeEui64)

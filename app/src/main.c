@@ -3,6 +3,8 @@
 #include <openthread/platform/radio.h>
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/net/openthread.h>
+#include <string.h>
+#include <zephyr/drivers/hwinfo.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
@@ -77,6 +79,21 @@ void __wrap_otPlatRadioReceiveDone(otInstance *i, otRadioFrame *f, otError e)
 		indication.to_blink[2] = STEP_BLINK;
 	}
 	__real_otPlatRadioReceiveDone(i, f, e);
+}
+
+void __wrap_otPlatRadioGetIeeeEui64(otInstance *instance, uint8_t *ieee_eui64)
+{
+	uint8_t id[OT_EXT_ADDRESS_SIZE] = {0};
+
+	ARG_UNUSED(instance);
+
+	/* Stable EUI-64 from the SoC unique ID; unused bytes stay 0 */
+	(void)hwinfo_get_device_id(id, sizeof(id));
+
+	/* Set the locally-administered bit, clear multicast bit */
+	id[0] = (id[0] | 0x02U) & 0xFEU;
+
+	memcpy(ieee_eui64, id, sizeof(id));
 }
 
 static const struct device *const wdt = DEVICE_DT_GET(DT_ALIAS(watchdog0));
