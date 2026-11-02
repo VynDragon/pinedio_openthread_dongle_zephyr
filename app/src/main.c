@@ -5,6 +5,8 @@
 #include <zephyr/net/openthread.h>
 #include <string.h>
 #include <zephyr/drivers/hwinfo.h>
+#include <zephyr/init.h>
+#include <bouffalolab/common/lmac154/lmac154.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
@@ -95,6 +97,16 @@ void __wrap_otPlatRadioGetIeeeEui64(otInstance *instance, uint8_t *ieee_eui64)
 
 	memcpy(ieee_eui64, id, sizeof(id));
 }
+
+static int rx_filter_init(void)
+{
+	// When OT-RCP isn't in promiscuous mode, apply PAN ID and DST NWK filtering
+	lmac154_setRxRejectPolicy(LMAC154_RX_REJECT_DST_PANID_MISMATCH |
+				  LMAC154_RX_REJECT_DST_ADDR_MISMATCH);
+	return 0;
+}
+
+SYS_INIT(rx_filter_init, APPLICATION, 0);
 
 static const struct device *const wdt = DEVICE_DT_GET(DT_ALIAS(watchdog0));
 
